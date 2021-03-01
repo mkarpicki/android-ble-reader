@@ -27,26 +27,42 @@ class BackgroundService : Service() {
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
 
+    // @todo maybe temporary filter by name pattern
+    // ideally (as I think possible) scan could use filter of ServiceIDs defined
+    private fun isDeviceToConnect(scanResult: ScanResult): Boolean {
+
+        val name : String? = scanResult.device.name
+
+        if (name.isNullOrEmpty()) {
+            return false
+        }
+
+        return name.contains("ESP32_")
+    }
+
     private fun handleFoundResult(scanResult: ScanResult) {
-        Log.i("RESULT", scanResult.toString())
+        //Log.i("RESULT", scanResult.toString())
+        if (isDeviceToConnect(scanResult)) {
+            Log.i("RESULT", scanResult.toString())
+        }
     }
 
     // Device scan callback.
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
-            handleFoundResult(result);
+            handleFoundResult(result)
         }
 
         override fun onBatchScanResults(results: MutableList<ScanResult>?) {
             super.onBatchScanResults(results)
 
             if (results == null) {
-                return;
+                return
             }
 
             for(result: ScanResult in results) {
-                handleFoundResult(result);
+                handleFoundResult(result)
             }
         }
     }

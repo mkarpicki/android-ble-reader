@@ -22,18 +22,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
-        releaseDebugKey {
-            // Use the release setting
-            initWith release
-        }
+//        releaseDebugKey {
+//            // Use the release setting
+//            initWith release
+//        }
     }
 
-    signingConfigs {
-        releaseDebugKey {
-            // Use the debug signature
-            initWith debug
-        }
-    }
+//    signingConfigs {
+//        releaseDebugKey {
+//            // Use the debug signature
+//            initWith debug
+//        }
+//    }
 }
 
 dependencies {
