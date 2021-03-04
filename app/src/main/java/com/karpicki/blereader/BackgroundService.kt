@@ -1,7 +1,9 @@
 package com.karpicki.blereader
 
 import android.app.Service
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.*
+import android.bluetooth.BluetoothProfile.STATE_CONNECTED
+import android.bluetooth.BluetoothProfile.STATE_DISCONNECTED
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -20,12 +22,17 @@ import kotlin.collections.ArrayList
 
 class BackgroundService : Service() {
 
+    private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
+    private val CHARACTERISTICS_UUID = UUID.fromString("a869a793-4b6e-4334-b1e3-eb0b74526c14")
+
     private val bluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
     private var mScanning = false
     private val handler = Handler()
 
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
+
+    private var connectionState = STATE_DISCONNECTED
 
     // @todo maybe temporary filter by name pattern
     // ideally (as I think possible) scan could use filter of ServiceIDs defined
@@ -36,14 +43,87 @@ class BackgroundService : Service() {
         if (name.isNullOrEmpty()) {
             return false
         }
-
         return name.contains("ESP32_")
+    }
+
+    private fun read(gatt: BluetoothGatt) {
+        val service : BluetoothGattService = gatt.services.find { service: BluetoothGattService ->
+            service.uuid.equals(SERVICE_UUID)
+        } ?: return
+
+        Log.w("gatt.service:", service.uuid.toString())
+
+        val characteristic: BluetoothGattCharacteristic = service.getCharacteristic(CHARACTERISTICS_UUID)
+            ?: return
+
+        gatt.readCharacteristic(characteristic)
+    }
+
+    // https://developer.android.com/guide/topics/connectivity/bluetooth-le#kotlin
+    private val gattCallback = object : BluetoothGattCallback() {
+        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+            val intentAction: String
+            when (newState) {
+                BluetoothProfile.STATE_CONNECTED -> {
+                    //intentAction = ACTION_GATT_CONNECTED
+                    connectionState = STATE_CONNECTED
+                    //broadcastUpdate(intentAction)
+                    Log.i("TAG", "Connected to GATT server.")
+                    Log.i("TAG", "Attempting to start service discovery: " +
+                            gatt.discoverServices())
+                }
+                BluetoothProfile.STATE_DISCONNECTED -> {
+                    //intentAction = ACTION_GATT_DISCONNECTED
+                    connectionState = STATE_DISCONNECTED
+                    Log.i("TAG", "Disconnected from GATT server.")
+                    //broadcastUpdate(intentAction)
+                }
+                else -> {
+                    Log.i("TAG", "ELSE from GATT server.")
+                }
+            }
+        }
+        // New services discovered
+        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            when (status) {
+                BluetoothGatt.GATT_SUCCESS -> {
+                    Log.w("TAG", "onServicesDiscovered received: $status")
+                    read(gatt)
+                }
+                else -> {
+                    //Log.w("TAG", "onServicesDiscovered received: $status")
+                }
+            }
+        }
+
+        // Result of a characteristic read operation
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            status: Int
+        ) {
+            when (status) {
+                BluetoothGatt.GATT_SUCCESS -> {
+                    Log.w("onCharacteristicRead", "onCharacteristicRead received: $status")
+                    Log.w("onCharacteristicRead", characteristic.value.toString())
+                }
+                else -> {
+                    //Log.w("TAG", "onCharacteristicRead received: $status")
+                }
+            }
+        }
+    }
+
+    private fun connect(device: BluetoothDevice) {
+        var bluetoothGatt: BluetoothGatt? = null
+        bluetoothGatt = device.connectGatt(this, false, gattCallback)
     }
 
     private fun handleFoundResult(scanResult: ScanResult) {
         //Log.i("RESULT", scanResult.toString())
         if (isDeviceToConnect(scanResult)) {
             Log.i("RESULT", scanResult.toString())
+            connect(scanResult.device)
         }
     }
 
@@ -66,8 +146,6 @@ class BackgroundService : Service() {
             }
         }
     }
-
-    //9d319c9c-3abb-4b58-b99d-23c9b1b69ebc
 
     private fun scanLeDevices() {
 
@@ -108,7 +186,6 @@ class BackgroundService : Service() {
         ).show()
 
         scanLeDevices()
-
         return START_STICKY
     }
 
@@ -121,8 +198,6 @@ class BackgroundService : Service() {
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        // TODO: Return the communication channel to the service.
-        //throw UnsupportedOperationException("Not yet implemented")
         return null
     }
     override fun onTaskRemoved(rootIntent: Intent) {
