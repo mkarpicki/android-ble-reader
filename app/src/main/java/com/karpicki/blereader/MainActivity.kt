@@ -9,6 +9,11 @@ import android.content.Intent
 import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
+
+    private fun start() {
+        startService(Intent(applicationContext, BackgroundService::class.java))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -24,9 +29,10 @@ class MainActivity : AppCompatActivity() {
             val REQUEST_ENABLE_BT = 1
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         } else {
-            //val button: Button = findViewById(R.id.button)
-            //button.setOnClickListener { startService(Intent(applicationContext, BackgroundService::class.java)) }
-            startService(Intent(applicationContext, BackgroundService::class.java))
+            val button: Button = findViewById(R.id.button)
+            button.setOnClickListener { start() }
+
+            start()
         }
 
     }

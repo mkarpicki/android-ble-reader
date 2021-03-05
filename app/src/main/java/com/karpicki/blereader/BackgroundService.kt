@@ -5,17 +5,13 @@ import android.bluetooth.*
 import android.bluetooth.BluetoothProfile.STATE_CONNECTED
 import android.bluetooth.BluetoothProfile.STATE_DISCONNECTED
 import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
 import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
-import android.os.ParcelUuid
 import android.util.Log
 import android.widget.Toast
 import java.util.*
-import kotlin.collections.ArrayList
 
 // @readme https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 // known characteristics
@@ -32,7 +28,7 @@ class BackgroundService : Service() {
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
 
-    private var connectionState = STATE_DISCONNECTED
+    //private var connectionState = STATE_DISCONNECTED
 
     // @todo maybe temporary filter by name pattern
     // ideally (as I think possible) scan could use filter of ServiceIDs defined
@@ -46,6 +42,43 @@ class BackgroundService : Service() {
         return name.contains("ESP32_")
     }
 
+    private fun broadcast(gatt: BluetoothGatt, value: String) {
+
+    }
+
+    private fun broadcast(gatt: BluetoothGatt, value: Int) {
+
+    }
+
+    private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
+        val data: ByteArray? = characteristic.value
+        if (data?.isNotEmpty() == true) {
+            return data.joinToString(separator = " ") {
+                String.format("%02X", it)
+            }
+        }
+        return ""
+    }
+
+    private fun readIntValue(characteristic: BluetoothGattCharacteristic): Int {
+        val flag = characteristic.properties
+        val format = when (flag and 0x01) {
+            0x01 -> {
+                BluetoothGattCharacteristic.FORMAT_UINT16
+            }
+            else -> {
+                BluetoothGattCharacteristic.FORMAT_UINT8
+            }
+        }
+        return characteristic.getIntValue(format, 0)
+    }
+
+    private fun readStringValue(characteristic: BluetoothGattCharacteristic): String {
+        Log.w("value:hexString", readHexStringValue(characteristic))
+        Log.w("value:uint", readIntValue(characteristic).toString())
+        return readIntValue(characteristic).toString()
+    }
+
     private fun read(gatt: BluetoothGatt) {
         val service : BluetoothGattService = gatt.services.find { service: BluetoothGattService ->
             service.uuid.equals(SERVICE_UUID)
@@ -56,27 +89,23 @@ class BackgroundService : Service() {
         val characteristic: BluetoothGattCharacteristic = service.getCharacteristic(CHARACTERISTICS_UUID)
             ?: return
 
+        Log.w("gatt.characteristics:", characteristic.uuid.toString())
+
         gatt.readCharacteristic(characteristic)
     }
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth-le#kotlin
     private val gattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            val intentAction: String
+
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
-                    //intentAction = ACTION_GATT_CONNECTED
-                    connectionState = STATE_CONNECTED
-                    //broadcastUpdate(intentAction)
                     Log.i("TAG", "Connected to GATT server.")
                     Log.i("TAG", "Attempting to start service discovery: " +
                             gatt.discoverServices())
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
-                    //intentAction = ACTION_GATT_DISCONNECTED
-                    connectionState = STATE_DISCONNECTED
                     Log.i("TAG", "Disconnected from GATT server.")
-                    //broadcastUpdate(intentAction)
                 }
                 else -> {
                     Log.i("TAG", "ELSE from GATT server.")
@@ -105,7 +134,8 @@ class BackgroundService : Service() {
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
                     Log.w("onCharacteristicRead", "onCharacteristicRead received: $status")
-                    Log.w("onCharacteristicRead", characteristic.value.toString())
+                    //readStringValue(characteristic)
+                    broadcast(gatt, readIntValue(characteristic))
                 }
                 else -> {
                     //Log.w("TAG", "onCharacteristicRead received: $status")
