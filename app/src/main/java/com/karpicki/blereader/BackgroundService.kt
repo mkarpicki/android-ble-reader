@@ -2,8 +2,6 @@ package com.karpicki.blereader
 
 import android.app.Service
 import android.bluetooth.*
-import android.bluetooth.BluetoothProfile.STATE_CONNECTED
-import android.bluetooth.BluetoothProfile.STATE_DISCONNECTED
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Intent
@@ -13,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import java.util.*
 
+
 // @readme https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 // known characteristics
 
@@ -20,6 +19,7 @@ class BackgroundService : Service() {
 
     private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
     private val CHARACTERISTICS_UUID = UUID.fromString("a869a793-4b6e-4334-b1e3-eb0b74526c14")
+    private val CLIENT_CHARACTERISTIC_CONFIGURATION_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
     private val bluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
     private var mScanning = false
@@ -92,6 +92,12 @@ class BackgroundService : Service() {
         Log.w("gatt.characteristics:", characteristic.uuid.toString())
 
         gatt.readCharacteristic(characteristic)
+
+//        gatt.setCharacteristicNotification(characteristic, true)
+//        val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_UUID)
+//        descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+//        gatt.writeDescriptor(descriptor)
+
     }
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth-le#kotlin
@@ -125,6 +131,15 @@ class BackgroundService : Service() {
             }
         }
 
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic
+        ) {
+            Log.w("onCharacteristicChanged", "onCharacteristicChanged received")
+            readStringValue(characteristic)
+            broadcast(gatt, readIntValue(characteristic))
+        }
+
         // Result of a characteristic read operation
         override fun onCharacteristicRead(
             gatt: BluetoothGatt,
@@ -134,7 +149,7 @@ class BackgroundService : Service() {
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
                     Log.w("onCharacteristicRead", "onCharacteristicRead received: $status")
-                    //readStringValue(characteristic)
+                    readStringValue(characteristic)
                     broadcast(gatt, readIntValue(characteristic))
                 }
                 else -> {
