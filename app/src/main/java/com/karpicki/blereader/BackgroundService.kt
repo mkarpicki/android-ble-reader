@@ -28,8 +28,6 @@ class BackgroundService : Service() {
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
 
-    //private var connectionState = STATE_DISCONNECTED
-
     // @todo maybe temporary filter by name pattern
     // ideally (as I think possible) scan could use filter of ServiceIDs defined
     private fun isDeviceToConnect(scanResult: ScanResult): Boolean {
@@ -47,7 +45,8 @@ class BackgroundService : Service() {
     }
 
     private fun broadcast(gatt: BluetoothGatt, value: Int) {
-
+        val macAddress : String = gatt.device.address
+        Log.w("broadcast", "$macAddress $value.toString()")
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
@@ -126,7 +125,7 @@ class BackgroundService : Service() {
                     read(gatt)
                 }
                 else -> {
-                    //Log.w("TAG", "onServicesDiscovered received: $status")
+                    Log.w("TAG", "onServicesDiscovered received: $status")
                 }
             }
         }
@@ -136,7 +135,6 @@ class BackgroundService : Service() {
             characteristic: BluetoothGattCharacteristic
         ) {
             Log.w("onCharacteristicChanged", "onCharacteristicChanged received")
-            readStringValue(characteristic)
             broadcast(gatt, readIntValue(characteristic))
         }
 
@@ -149,11 +147,10 @@ class BackgroundService : Service() {
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
                     Log.w("onCharacteristicRead", "onCharacteristicRead received: $status")
-                    readStringValue(characteristic)
                     broadcast(gatt, readIntValue(characteristic))
                 }
                 else -> {
-                    //Log.w("TAG", "onCharacteristicRead received: $status")
+                    Log.w("TAG", "onCharacteristicRead received: $status")
                 }
             }
         }
