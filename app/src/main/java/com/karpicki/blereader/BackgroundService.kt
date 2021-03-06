@@ -93,10 +93,10 @@ class BackgroundService : Service() {
 
         gatt.readCharacteristic(characteristic)
 
-//        gatt.setCharacteristicNotification(characteristic, true)
-//        val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_UUID)
-//        descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-//        gatt.writeDescriptor(descriptor)
+        gatt.setCharacteristicNotification(characteristic, true)
+        val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_UUID)
+        descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+        gatt.writeDescriptor(descriptor)
 
     }
 
