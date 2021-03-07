@@ -7,6 +7,8 @@ import android.content.Context
 import android.os.Handler
 import android.util.Log
 import java.util.*
+import okhttp3.*
+import java.lang.Exception
 
 class BluetoothHandler {
     private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
@@ -38,9 +40,32 @@ class BluetoothHandler {
 
     }
 
+    // @todo
+    // this is example of channel (to retire)
+    // build queue of requests and execute each 20 sec or less often
     private fun broadcast(gatt: BluetoothGatt, value: Int) {
         val macAddress : String = gatt.device.address
-        Log.w("broadcast", "$macAddress $value.toString()")
+        Log.w("broadcast", "$macAddress $value")
+        var responseCode: Int
+
+        try {
+            val client = OkHttpClient();
+
+            val request: Request = Request.Builder()
+                .url("https://api.thingspeak.com/update?api_key=34CJ0H014G21EN58&field1=$value")
+                .get()
+                .build()
+
+            val response: Response = client.newCall(request).execute()
+
+            Log.d("TAG", "response.code():" + response.code())
+            //response.body()?.string()
+            responseCode = response.code()
+
+        } catch (e: Exception) {
+            responseCode = 500
+        }
+
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
@@ -84,10 +109,21 @@ class BluetoothHandler {
 
         Log.w("gatt.characteristics:", characteristic.uuid.toString())
 
-        gatt.readCharacteristic(characteristic)
+        // @todo
+        // this caused some problems so if ew wanna bring back
+        // maybe notification listener must have some delay ?
+        
+        //gatt.readCharacteristic(characteristic)
+
+        // @todo
+        // remember MAC addresses of devices which descriptors created
+        // and on next loop run (like now button click when testing)
+        // if same or even same but disconnected devices kept - don't register same listeners
+        // eventually clean them on any disconnect in addition
 
         gatt.setCharacteristicNotification(characteristic, true)
         val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_UUID)
+        //val descriptor = characteristic.descriptors.get(0)
         descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         gatt.writeDescriptor(descriptor)
 
