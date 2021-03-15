@@ -9,6 +9,7 @@ import android.util.Log
 import java.util.*
 import okhttp3.*
 import java.lang.Exception
+import kotlin.collections.ArrayList
 
 class BluetoothHandler {
     private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
@@ -24,9 +25,11 @@ class BluetoothHandler {
 
     private var context: Context? = null
 
+    private var connectedDevices: ArrayList<BluetoothDevice> = ArrayList()
+
     // @todo maybe temporary filter by name pattern
     // ideally (as I think possible) scan could use filter of ServiceIDs defined
-    private fun isDeviceToConnect(scanResult: ScanResult): Boolean {
+    private fun hasKnownName(scanResult: ScanResult): Boolean {
 
         val name : String? = scanResult.device.name
 
@@ -115,18 +118,18 @@ class BluetoothHandler {
         
         //gatt.readCharacteristic(characteristic)
 
-        // @todo
-        // remember MAC addresses of devices which descriptors created
-        // and on next loop run (like now button click when testing)
-        // if same or even same but disconnected devices kept - don't register same listeners
-        // eventually clean them on any disconnect in addition
+        if (!ConnectedDevicesUtil.isConnected(connectedDevices, gatt.device)) {
+            watchForChanges(gatt, characteristic)
+            connectedDevices = ConnectedDevicesUtil.remember(connectedDevices, gatt.device)
+        }
+    }
 
+    private fun watchForChanges(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
         gatt.setCharacteristicNotification(characteristic, true)
         val descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_UUID)
         //val descriptor = characteristic.descriptors.get(0)
         descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
         gatt.writeDescriptor(descriptor)
-
     }
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth-le#kotlin
@@ -141,6 +144,7 @@ class BluetoothHandler {
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.i("TAG", "Disconnected from GATT server.")
+                    connectedDevices = ConnectedDevicesUtil.forget(connectedDevices, gatt.device)
                 }
                 else -> {
                     Log.i("TAG", "ELSE from GATT server.")
@@ -193,7 +197,7 @@ class BluetoothHandler {
 
     private fun handleFoundResult(scanResult: ScanResult) {
         //Log.i("RESULT", scanResult.toString())
-        if (isDeviceToConnect(scanResult)) {
+        if (hasKnownName(scanResult)) {
             Log.i("RESULT", scanResult.toString())
             connect(scanResult.device)
         }
@@ -250,8 +254,9 @@ class BluetoothHandler {
         }
     }
 
-    constructor(context: Context) {
+    constructor(context: Context, connectedDevices: ArrayList<BluetoothDevice>) {
         this.context = context
+        this.connectedDevices = connectedDevices
     }
 
 }

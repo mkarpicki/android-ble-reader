@@ -1,6 +1,7 @@
 package com.karpicki.blereader
 
 import android.app.Service
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.IBinder
 import android.widget.Toast
@@ -13,6 +14,7 @@ import java.util.*
 class BackgroundService : Service() {
 
     private var bluetoothHandler : BluetoothHandler? = null
+    private var connectedDevices: ArrayList<BluetoothDevice> = ArrayList<BluetoothDevice>()
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         //onTaskRemoved(intent)
@@ -22,7 +24,7 @@ class BackgroundService : Service() {
         ).show()
 
         if (bluetoothHandler == null) {
-            bluetoothHandler = BluetoothHandler(this)
+            bluetoothHandler = BluetoothHandler(this, connectedDevices)
         }
         bluetoothHandler!!.scanLeDevices()
         return START_STICKY
