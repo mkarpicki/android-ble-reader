@@ -11,7 +11,10 @@ class ConnectedDevicesUtil {
         }
 
         fun remember(connectedDevices: ArrayList<BluetoothDevice>, device: BluetoothDevice): ArrayList<BluetoothDevice> {
-            connectedDevices.add(device)
+            val found = find(connectedDevices, device)
+            if (found == null) {
+                connectedDevices.add(device)
+            }
             return connectedDevices
         }
 

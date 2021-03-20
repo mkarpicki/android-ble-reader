@@ -196,7 +196,7 @@ class BluetoothHandler {
     }
 
     private fun handleFoundResult(scanResult: ScanResult) {
-        //Log.i("RESULT", scanResult.toString())
+
         if (hasKnownName(scanResult)) {
             Log.i("RESULT", scanResult.toString())
             connect(scanResult.device)
