@@ -30,9 +30,15 @@
         </activity>
 
         <service
-            android:name=".BackgroundService"
+            android:name=".BLEBackgroundService"
             android:enabled="true"
             android:exported="true" />
+
+        <service
+            android:name=".ThingSpeakBackgroundService"
+            android:enabled="true"
+            android:exported="true" />
+
     </application>
 
 </manifest>

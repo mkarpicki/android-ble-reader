@@ -11,7 +11,8 @@ import android.widget.Button
 class MainActivity : AppCompatActivity() {
 
     private fun start() {
-        startService(Intent(applicationContext, BackgroundService::class.java))
+        startService(Intent(applicationContext, BLEBackgroundService::class.java))
+        startService(Intent(applicationContext, ThingSpeakBackgroundService::class.java))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -11,7 +11,7 @@ import java.util.*
 // @readme https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 // known characteristics
 
-class BackgroundService : Service() {
+class BLEBackgroundService : Service() {
 
     private var bluetoothHandler : BluetoothHandler? = null
     private var connectedDevices: ArrayList<BluetoothDevice> = ArrayList<BluetoothDevice>()
@@ -28,14 +28,6 @@ class BackgroundService : Service() {
         }
         bluetoothHandler!!.scanLeDevices()
         return START_STICKY
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Toast.makeText(
-            applicationContext, "Service onDestroy",
-            Toast.LENGTH_SHORT
-        ).show()
     }
 
     override fun onBind(intent: Intent): IBinder? {
