@@ -10,27 +10,19 @@ import kotlin.concurrent.schedule
 
 class ThingSpeakBackgroundService() : Service() {
 
-    private val API_DELAY_MILISECONDS : Long = 15000
-
-    private fun getList(intent: Intent): ArrayList<Message> {
-        if (intent.extras != null) {
-            return intent.extras!!.getSerializable(Constants.listName) as ArrayList<Message>
-        }
-        return ArrayList()
-    }
+    private val API_DELAY_MILISECONDS : Long = 16000
 
     private fun processMessage(intent: Intent) {
-        val messageList = getList(intent)
+        val messageList = MessageList.get()
 
-        Log.i("ToSend.message.size", messageList.size.toString())
+        Log.i("THS:MessageClass.size", MessageList.get().size.toString())
 
         if (messageList.size == 0) {
             return
         }
 
-//        val message = messageList.removeAt(0)
-//
-//        send(message)
+        val message = messageList.removeAt(0)
+        send(message)
     }
 
     private fun send(message: Message) {
@@ -55,8 +47,8 @@ class ThingSpeakBackgroundService() : Service() {
         restartServiceIntent.setPackage(packageName)
 
         Timer("NextThingSpeakSyncSet", false).schedule(API_DELAY_MILISECONDS) {
-            //startService(restartServiceIntent)
-            startService(rootIntent)
+            startService(restartServiceIntent)
+            //startService(rootIntent)
         }
         super.onTaskRemoved(rootIntent)
     }

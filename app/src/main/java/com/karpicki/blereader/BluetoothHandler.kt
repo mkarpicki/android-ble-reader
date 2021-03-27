@@ -13,8 +13,7 @@ import kotlin.collections.ArrayList
 
 class BluetoothHandler(
     context: Context,
-    private var connectedDevices: ArrayList<BluetoothDevice>,
-    private var messageList: ArrayList<Message>
+    private var connectedDevices: ArrayList<BluetoothDevice>
 ) {
     private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
     private val CHARACTERISTICS_UUID = UUID.fromString("a869a793-4b6e-4334-b1e3-eb0b74526c14")
@@ -70,8 +69,9 @@ class BluetoothHandler(
 //        } catch (e: Exception) {
 //            responseCode = 500
 //        }
-        messageList.add(Message())
-        Log.i("inHandlerSize", messageList.size.toString())
+
+        MessageList.get().add(Message())
+        Log.i("BT:MessageClass.size", MessageList.get().size.toString())
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {

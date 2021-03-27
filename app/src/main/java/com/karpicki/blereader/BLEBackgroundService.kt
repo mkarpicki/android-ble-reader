@@ -16,13 +16,6 @@ class BLEBackgroundService : Service() {
     private var bluetoothHandler : BluetoothHandler? = null
     private var connectedDevices: ArrayList<BluetoothDevice> = ArrayList<BluetoothDevice>()
 
-    private fun getList(intent: Intent): ArrayList<Message> {
-        if (intent.extras != null) {
-            return intent.extras!!.getSerializable(Constants.listName) as ArrayList<Message>
-        }
-        return ArrayList()
-    }
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         //onTaskRemoved(intent)
         Toast.makeText(
@@ -31,7 +24,7 @@ class BLEBackgroundService : Service() {
         ).show()
 
         if (bluetoothHandler == null) {
-            bluetoothHandler = BluetoothHandler(this, connectedDevices, getList(intent))
+            bluetoothHandler = BluetoothHandler(this, connectedDevices)
         }
         bluetoothHandler!!.scanLeDevices()
         return START_STICKY

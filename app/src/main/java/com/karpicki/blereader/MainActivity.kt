@@ -12,23 +12,15 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private var isBackgroundServiceRunning = false
-    private var messageList = ArrayList<Message>()
 
     private fun start() {
 
-// @todo - uncomment me at some point :)
 //        if (isBackgroundServiceRunning) {
 //            return
 //        }
 
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
         val thingSpeakIntent = Intent(applicationContext, ThingSpeakBackgroundService::class.java)
-
-        // @todo - remove me
-        messageList.add(Message())
-
-        bleServiceIntent.putExtra(Constants.listName, messageList)
-        thingSpeakIntent.putExtra(Constants.listName, messageList)
 
         startService(bleServiceIntent)
         startService(thingSpeakIntent)
@@ -38,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.run {
-            putSerializable(Constants.listName, messageList)
+            //putSerializable(Constants.listName, messageList)
             putBoolean(Constants.semaphoreName, isBackgroundServiceRunning)
         }
 
@@ -48,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) { // Here You have to restore count value
         super.onRestoreInstanceState(savedInstanceState)
 
-        messageList = savedInstanceState.getSerializable(Constants.listName) as ArrayList<Message>
+        //messageList = savedInstanceState.getSerializable(Constants.listName) as ArrayList<Message>
         isBackgroundServiceRunning = savedInstanceState.getBoolean(Constants.semaphoreName)
     }
 
