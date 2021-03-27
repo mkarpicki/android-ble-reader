@@ -23,12 +23,11 @@ class MainActivity : AppCompatActivity() {
 //            return
 //        }
 
-        val queue = PriorityQueue<Message>()
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
         val thingSpeakIntent = Intent(applicationContext, ThingSpeakBackgroundService::class.java)
 
-        bleServiceIntent.putExtra(propListName, queue)
-        thingSpeakIntent.putExtra(propListName, queue)
+        bleServiceIntent.putExtra(propListName, messageList)
+        thingSpeakIntent.putExtra(propListName, messageList)
 
         startService(bleServiceIntent)
         startService(thingSpeakIntent)
