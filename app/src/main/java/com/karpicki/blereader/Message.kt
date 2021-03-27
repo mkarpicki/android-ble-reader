@@ -1,4 +1,6 @@
 package com.karpicki.blereader
 
-class Message {
+import java.io.Serializable
+
+class Message: Serializable {
 }

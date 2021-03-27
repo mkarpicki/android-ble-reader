@@ -11,8 +11,6 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val propListName = "MESSAGE_LIST"
-    private val propSemaphoreName = "IS_RUNNING"
     private var isBackgroundServiceRunning = false
     private var messageList = ArrayList<Message>()
 
@@ -26,8 +24,11 @@ class MainActivity : AppCompatActivity() {
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
         val thingSpeakIntent = Intent(applicationContext, ThingSpeakBackgroundService::class.java)
 
-        bleServiceIntent.putExtra(propListName, messageList)
-        thingSpeakIntent.putExtra(propListName, messageList)
+        // @todo - remove me
+        messageList.add(Message())
+
+        bleServiceIntent.putExtra(Constants.listName, messageList)
+        thingSpeakIntent.putExtra(Constants.listName, messageList)
 
         startService(bleServiceIntent)
         startService(thingSpeakIntent)
@@ -37,8 +38,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.run {
-            putSerializable(propListName, messageList)
-            putBoolean(propSemaphoreName, isBackgroundServiceRunning)
+            putSerializable(Constants.listName, messageList)
+            putBoolean(Constants.semaphoreName, isBackgroundServiceRunning)
         }
 
         super.onSaveInstanceState(outState)
@@ -47,8 +48,8 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) { // Here You have to restore count value
         super.onRestoreInstanceState(savedInstanceState)
 
-        messageList = savedInstanceState.getSerializable(propListName) as ArrayList<Message>
-        isBackgroundServiceRunning = savedInstanceState.getBoolean(propSemaphoreName)
+        messageList = savedInstanceState.getSerializable(Constants.listName) as ArrayList<Message>
+        isBackgroundServiceRunning = savedInstanceState.getBoolean(Constants.semaphoreName)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

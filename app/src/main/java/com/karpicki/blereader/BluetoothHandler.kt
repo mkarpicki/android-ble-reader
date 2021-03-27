@@ -11,7 +11,11 @@ import okhttp3.*
 import java.lang.Exception
 import kotlin.collections.ArrayList
 
-class BluetoothHandler {
+class BluetoothHandler(
+    context: Context,
+    private var connectedDevices: ArrayList<BluetoothDevice>,
+    private var messageList: ArrayList<Message>
+) {
     private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
     private val CHARACTERISTICS_UUID = UUID.fromString("a869a793-4b6e-4334-b1e3-eb0b74526c14")
     private val CLIENT_CHARACTERISTIC_CONFIGURATION_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -23,9 +27,7 @@ class BluetoothHandler {
     // Stops scanning after 10 seconds.
     private val SCAN_PERIOD: Long = 10000
 
-    private var context: Context? = null
-
-    private var connectedDevices: ArrayList<BluetoothDevice> = ArrayList()
+    private var context: Context? = context
 
     // @todo maybe temporary filter by name pattern
     // ideally (as I think possible) scan could use filter of ServiceIDs defined
@@ -49,26 +51,27 @@ class BluetoothHandler {
     private fun broadcast(gatt: BluetoothGatt, value: Int) {
         val macAddress : String = gatt.device.address
         Log.w("broadcast", "$macAddress $value")
-        var responseCode: Int
-
-        try {
-            val client = OkHttpClient();
-
-            val request: Request = Request.Builder()
-                .url("https://api.thingspeak.com/update?api_key=34CJ0H014G21EN58&field1=$value")
-                .get()
-                .build()
-
-            val response: Response = client.newCall(request).execute()
-
-            Log.d("TAG", "response.code():" + response.code())
-            //response.body()?.string()
-            responseCode = response.code()
-
-        } catch (e: Exception) {
-            responseCode = 500
-        }
-
+//        var responseCode: Int
+//
+//        try {
+//            val client = OkHttpClient();
+//
+//            val request: Request = Request.Builder()
+//                .url("https://api.thingspeak.com/update?api_key=34CJ0H014G21EN58&field1=$value")
+//                .get()
+//                .build()
+//
+//            val response: Response = client.newCall(request).execute()
+//
+//            Log.d("TAG", "response.code():" + response.code())
+//            //response.body()?.string()
+//            responseCode = response.code()
+//
+//        } catch (e: Exception) {
+//            responseCode = 500
+//        }
+        messageList.add(Message())
+        Log.i("inHandlerSize", messageList.size.toString())
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
@@ -252,11 +255,6 @@ class BluetoothHandler {
             mScanning = false
             bluetoothLeScanner.stopScan(leScanCallback)
         }
-    }
-
-    constructor(context: Context, connectedDevices: ArrayList<BluetoothDevice>) {
-        this.context = context
-        this.connectedDevices = connectedDevices
     }
 
 }
