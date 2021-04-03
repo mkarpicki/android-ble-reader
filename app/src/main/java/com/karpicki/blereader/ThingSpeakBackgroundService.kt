@@ -16,7 +16,7 @@ import kotlin.concurrent.schedule
 
 class ThingSpeakBackgroundService() : Service() {
 
-    private val API_DELAY_MILISECONDS : Long = 16000
+    private val API_DELAY_MILISECONDS : Long = 20000
 
     private fun processMessage() {
         val messageList = MessageList.get()
