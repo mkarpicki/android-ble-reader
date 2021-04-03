@@ -1,6 +1,14 @@
 package com.karpicki.blereader
 
-import java.io.Serializable
+import android.bluetooth.BluetoothGatt
 
-class Message: Serializable {
+class Message {
+
+    var gatt: BluetoothGatt
+    var value: Int
+
+    constructor(gatt: BluetoothGatt, value: Int) {
+        this.gatt = gatt
+        this.value = value
+    }
 }

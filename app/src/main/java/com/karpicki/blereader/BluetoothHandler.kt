@@ -50,27 +50,8 @@ class BluetoothHandler(
     private fun broadcast(gatt: BluetoothGatt, value: Int) {
         val macAddress : String = gatt.device.address
         Log.w("broadcast", "$macAddress $value")
-//        var responseCode: Int
-//
-//        try {
-//            val client = OkHttpClient();
-//
-//            val request: Request = Request.Builder()
-//                .url("https://api.thingspeak.com/update?api_key=34CJ0H014G21EN58&field1=$value")
-//                .get()
-//                .build()
-//
-//            val response: Response = client.newCall(request).execute()
-//
-//            Log.d("TAG", "response.code():" + response.code())
-//            //response.body()?.string()
-//            responseCode = response.code()
-//
-//        } catch (e: Exception) {
-//            responseCode = 500
-//        }
 
-        MessageList.get().add(Message())
+        MessageList.get().add(Message(gatt, value))
         Log.i("BT:MessageClass.size", MessageList.get().size.toString())
     }
 
