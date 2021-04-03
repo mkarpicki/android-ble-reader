@@ -16,7 +16,7 @@ import kotlin.concurrent.schedule
 
 class ThingSpeakBackgroundService() : Service() {
 
-    private val API_DELAY_MILISECONDS : Long = 20000
+    private val nextRunInMilliseconds : Long = 20 * Constants.second.toLong()
 
     private fun processMessage() {
         val messageList = MessageList.get()
@@ -76,7 +76,7 @@ class ThingSpeakBackgroundService() : Service() {
         val restartServiceIntent = Intent(applicationContext, this.javaClass)
         restartServiceIntent.setPackage(packageName)
 
-        Timer("NextThingSpeakSyncSet", false).schedule(API_DELAY_MILISECONDS) {
+        Timer("Next ThingSpeakBackgroundService", false).schedule(nextRunInMilliseconds) {
             startService(restartServiceIntent)
             //startService(rootIntent)
         }

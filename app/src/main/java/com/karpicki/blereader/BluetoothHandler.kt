@@ -102,10 +102,8 @@ class BluetoothHandler(
         
         //gatt.readCharacteristic(characteristic)
 
-        if (!ConnectedDevicesUtil.isConnected(connectedDevices, gatt.device)) {
-            watchForChanges(gatt, characteristic)
-            connectedDevices = ConnectedDevicesUtil.remember(connectedDevices, gatt.device)
-        }
+        watchForChanges(gatt, characteristic)
+        connectedDevices = ConnectedDevicesUtil.remember(connectedDevices, gatt.device)
     }
 
     private fun watchForChanges(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
@@ -183,7 +181,13 @@ class BluetoothHandler(
 
         if (hasKnownName(scanResult)) {
             Log.i("RESULT", scanResult.toString())
-            connect(scanResult.device)
+
+            if (!ConnectedDevicesUtil.isConnected(connectedDevices, scanResult.device)) {
+                connect(scanResult.device)
+            } else {
+                Log.i("ALREADY CONNECTED", scanResult.device.address)
+            }
+
         }
     }
 
