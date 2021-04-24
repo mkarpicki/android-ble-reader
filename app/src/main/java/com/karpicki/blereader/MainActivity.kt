@@ -15,9 +15,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun start() {
 
-//        if (isBackgroundServiceRunning) {
-//            return
-//        }
+        if (isBackgroundServiceRunning) {
+            return
+        }
 
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
         val thingSpeakIntent = Intent(applicationContext, ThingSpeakBackgroundService::class.java)

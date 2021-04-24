@@ -40,49 +40,16 @@ class BluetoothHandler(
         return name.contains("ESP32_")
     }
 
-    private fun broadcast(gatt: BluetoothGatt, value: String) {
-
-    }
-
     // @todo
     // this is example of channel (to retire)
     // build queue of requests and execute each 20 sec or less often
-    private fun broadcast(gatt: BluetoothGatt, value: Int) {
-        val macAddress : String = gatt.device.address
-        Log.w("broadcast", "$macAddress $value")
+    private fun broadcast(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
 
-        MessageList.get().add(Message(gatt, value))
+        MessageList.get().add(Message(gatt, characteristic))
         Log.i("BT:MessageClass.size", MessageList.get().size.toString())
     }
 
-    private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
-        val data: ByteArray? = characteristic.value
-        if (data?.isNotEmpty() == true) {
-            return data.joinToString(separator = " ") {
-                String.format("%02X", it)
-            }
-        }
-        return ""
-    }
 
-    private fun readIntValue(characteristic: BluetoothGattCharacteristic): Int {
-        val flag = characteristic.properties
-        val format = when (flag and 0x01) {
-            0x01 -> {
-                BluetoothGattCharacteristic.FORMAT_UINT16
-            }
-            else -> {
-                BluetoothGattCharacteristic.FORMAT_UINT8
-            }
-        }
-        return characteristic.getIntValue(format, 0)
-    }
-
-    private fun readStringValue(characteristic: BluetoothGattCharacteristic): String {
-        Log.w("value:hexString", readHexStringValue(characteristic))
-        Log.w("value:uint", readIntValue(characteristic).toString())
-        return readIntValue(characteristic).toString()
-    }
 
     private fun read(gatt: BluetoothGatt) {
         val service : BluetoothGattService = gatt.services.find { service: BluetoothGattService ->
@@ -151,7 +118,7 @@ class BluetoothHandler(
             characteristic: BluetoothGattCharacteristic
         ) {
             Log.w("onCharacteristicChanged", "onCharacteristicChanged received")
-            broadcast(gatt, readIntValue(characteristic))
+            broadcast(gatt, characteristic)
         }
 
         // Result of a characteristic read operation
@@ -163,7 +130,7 @@ class BluetoothHandler(
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
                     Log.w("onCharacteristicRead", "onCharacteristicRead received: $status")
-                    broadcast(gatt, readIntValue(characteristic))
+                    broadcast(gatt, characteristic)
                 }
                 else -> {
                     Log.w("TAG", "onCharacteristicRead received: $status")

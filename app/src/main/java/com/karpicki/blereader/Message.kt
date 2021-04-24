@@ -1,14 +1,8 @@
 package com.karpicki.blereader
 
 import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothGattCharacteristic
 
-class Message {
+class Message(var gatt: BluetoothGatt, var characteristic: BluetoothGattCharacteristic) {
 
-    var gatt: BluetoothGatt
-    var value: Int
-
-    constructor(gatt: BluetoothGatt, value: Int) {
-        this.gatt = gatt
-        this.value = value
-    }
 }
