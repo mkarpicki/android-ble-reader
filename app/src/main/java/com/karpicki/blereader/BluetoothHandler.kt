@@ -40,13 +40,13 @@ class BluetoothHandler(
         return name.contains("ESP32_")
     }
 
-    // @todo
-    // this is example of channel (to retire)
-    // build queue of requests and execute each 20 sec or less often
     private fun broadcast(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
 
-        MessageList.get().add(Message(gatt, characteristic))
-        Log.i("BT:MessageClass.size", MessageList.get().size.toString())
+//        MessageList.get().add(Message(gatt, characteristic))
+//        Log.i("BT:MessageClass.size", MessageList.get().size.toString())
+
+        MessageQueue.insert(Message(gatt, characteristic))
+        Log.i("BT:MessageQueue.size", MessageQueue.size().toString())
     }
 
 

@@ -20,18 +20,27 @@ class MessageBackgroundService() : Service() {
     private val nextRunInMilliseconds : Long = 20 * Constants.second.toLong()
 
     private fun processMessage() {
-        val messageList = MessageList.get()
+//        val messageList = MessageList.get()
+//
+//        Log.i("THS:MessageClass.size", MessageList.get().size.toString())
+//
+//        if (messageList.size == 0) {
+//            return
+//        }
+//
+//        val message = messageList.removeAt(0)
 
-        Log.i("THS:MessageClass.size", MessageList.get().size.toString())
+        Log.i("THS:MessageQueue.size", MessageQueue.size().toString())
 
-        if (messageList.size == 0) {
-            return
+        val message = MessageQueue.get()
+
+        if (message != null) {
+
+            val scope = CoroutineScope(Dispatchers.IO)
+            // @todo : may add results inside to broadcast to UI
+            scope.launch { send(message) }
         }
 
-        val message = messageList.removeAt(0)
-        val scope = CoroutineScope(Dispatchers.IO)
-        // @todo : may add results inside to broadcast to UI
-        scope.launch { send(message) }
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
@@ -95,7 +104,7 @@ class MessageBackgroundService() : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        Log.i("ThingSpeakService", "start")
+        Log.i("MessageService", "start")
 
         processMessage()
 
@@ -107,7 +116,7 @@ class MessageBackgroundService() : Service() {
         val restartServiceIntent = Intent(applicationContext, this.javaClass)
         restartServiceIntent.setPackage(packageName)
 
-        Timer("Next ThingSpeakBackgroundService", false).schedule(nextRunInMilliseconds) {
+        Timer("Next MessageService", false).schedule(nextRunInMilliseconds) {
             startService(restartServiceIntent)
             //startService(rootIntent)
         }
