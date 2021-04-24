@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.content.Intent
 import android.widget.Button
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
-        val thingSpeakIntent = Intent(applicationContext, ThingSpeakBackgroundService::class.java)
+        val thingSpeakIntent = Intent(applicationContext, MessageBackgroundService::class.java)
 
         startService(bleServiceIntent)
         startService(thingSpeakIntent)

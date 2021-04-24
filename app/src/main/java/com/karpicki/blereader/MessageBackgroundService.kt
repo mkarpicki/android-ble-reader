@@ -15,7 +15,7 @@ import okhttp3.Response
 import java.util.*
 import kotlin.concurrent.schedule
 
-class ThingSpeakBackgroundService() : Service() {
+class MessageBackgroundService() : Service() {
 
     private val nextRunInMilliseconds : Long = 20 * Constants.second.toLong()
 
