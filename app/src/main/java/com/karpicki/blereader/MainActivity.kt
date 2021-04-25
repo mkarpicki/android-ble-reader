@@ -18,11 +18,13 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val devicesWhiteListIntent = Intent(applicationContext, DeviceWhiteListReaderService::class.java)
+        val devicesAllowedListIntent = Intent(applicationContext, DeviceAllowedListReaderService::class.java)
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
         val thingSpeakIntent = Intent(applicationContext, MessageBackgroundService::class.java)
 
-        startService(devicesWhiteListIntent)
+        AllowedList.setContext(applicationContext)
+
+        startService(devicesAllowedListIntent)
         startService(bleServiceIntent)
         startService(thingSpeakIntent)
 

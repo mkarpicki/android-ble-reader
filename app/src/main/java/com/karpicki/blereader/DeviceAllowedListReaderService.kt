@@ -15,7 +15,7 @@ import okhttp3.Response
 import java.util.*
 import kotlin.concurrent.schedule
 
-class DeviceWhiteListReaderService: Service() {
+class DeviceAllowedListReaderService: Service() {
 
     private val nextRunInMilliseconds : Long = Constants.hour.toLong()
 
@@ -27,14 +27,22 @@ class DeviceWhiteListReaderService: Service() {
         val scope = CoroutineScope(Dispatchers.IO)
 
         scope.launch {
-            get()
+            val listResponse = get()
+            if (listResponse != null) {
+                setDictionary(listResponse)
+            }
         }
     }
 
-    suspend fun get() : Int =
+    private fun setDictionary (responseStr: String) {
+        AllowedList.save(responseStr)
+    }
+
+    suspend fun get() : String? =
 
         withContext(Dispatchers.IO) {
-            var responseCode: Int
+
+            var responseStr: String? = null
 
             val apiKey = BuildConfig.MY_DEVICES_API_KEY
             val url = BuildConfig.MY_DEVICES_URL
@@ -50,7 +58,6 @@ class DeviceWhiteListReaderService: Service() {
             try {
                 val client = OkHttpClient();
 
-                // @todo - move api_key to app config
                 val request: Request = Request.Builder()
                     .url(url)
                     .get()
@@ -60,13 +67,18 @@ class DeviceWhiteListReaderService: Service() {
                 val response: Response = client.newCall(request).execute()
 
                 Log.d("DeviceList.responseCode", "response.code():" + response.code())
-                //response.body()?.string()
-                responseCode = response.code()
+
+                if (response.code() == 200) {
+                    responseStr = response.body()!!.string()
+                } else {
+                    throw Exception(response.code().toString())
+                }
 
             } catch (e: Exception) {
-                responseCode = 500
+                Log.e("DeviceList.loading", e.toString())
+
             }
-            responseCode
+            responseStr
         }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
