@@ -2,6 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+def getThingSpeakApiKey() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("thing-speak.api-key")
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
@@ -17,9 +23,16 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            buildConfigField("String", "THING_SPEAK_API_KEY", "\""+getThingSpeakApiKey()+"\"")
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField("String", "THING_SPEAK_API_KEY", "\""+getThingSpeakApiKey()+"\"")
         }
 
 //        releaseDebugKey {
