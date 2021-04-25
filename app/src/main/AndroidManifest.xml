@@ -30,6 +30,11 @@
         </activity>
 
         <service
+            android:name=".DeviceWhiteListReaderService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
             android:name=".BLEBackgroundService"
             android:enabled="true"
             android:exported="true" />

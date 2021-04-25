@@ -8,6 +8,18 @@ def getThingSpeakApiKey() {
     return properties.getProperty("thing-speak.api-key")
 }
 
+def getMyDevicesApiKey() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("my-devices-api.api-key")
+}
+
+def getMyDevicesUrl() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    return properties.getProperty("my-devices-api.url")
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
@@ -26,6 +38,8 @@ android {
 
         debug {
             buildConfigField("String", "THING_SPEAK_API_KEY", "\""+getThingSpeakApiKey()+"\"")
+            buildConfigField("String", "MY_DEVICES_API_KEY", "\""+getMyDevicesApiKey()+"\"")
+            buildConfigField("String", "MY_DEVICES_URL", "\""+getMyDevicesUrl()+"\"")
         }
 
         release {
@@ -33,6 +47,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             buildConfigField("String", "THING_SPEAK_API_KEY", "\""+getThingSpeakApiKey()+"\"")
+            buildConfigField("String", "MY_DEVICES_API_KEY", "\""+getMyDevicesApiKey()+"\"")
+            buildConfigField("String", "MY_DEVICES_URL", "\""+getMyDevicesUrl()+"\"")
         }
 
 //        releaseDebugKey {

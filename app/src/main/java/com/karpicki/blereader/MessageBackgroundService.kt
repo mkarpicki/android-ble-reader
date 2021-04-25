@@ -75,33 +75,6 @@ class MessageBackgroundService() : Service() {
         return readIntValue(characteristic).toString()
     }
 
-//    private suspend fun send(message: Message) : Int =
-//
-//        withContext(Dispatchers.IO) {
-//        var responseCode: Int
-//        val value = readStringValue(message.characteristic)
-//
-//        try {
-//            val client = OkHttpClient();
-//
-//            // @todo - move api_key to app config
-//            val request: Request = Request.Builder()
-//                .url("https://api.thingspeak.com/update?api_key=34CJ0H014G21EN58&field1=$value")
-//                .get()
-//                .build()
-//
-//            val response: Response = client.newCall(request).execute()
-//
-//            Log.d("TAG", "response.code():" + response.code())
-//            //response.body()?.string()
-//            responseCode = response.code()
-//
-//        } catch (e: Exception) {
-//            responseCode = 500
-//        }
-//        responseCode
-//    }
-
     override fun onBind(p0: Intent?): IBinder? {
         TODO("Not yet implemented")
     }
