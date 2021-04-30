@@ -7,4 +7,11 @@ class Constants {
         const val minute = 60 * second
         const val hour = 60 * minute
     }
+    class Types {
+        companion object {
+            const val integer = "Integer"
+            const val float = "Float"
+            const val string = "String"
+        }
+    }
 }

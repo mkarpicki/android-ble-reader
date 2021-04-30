@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import org.json.JSONArray
 import org.json.JSONException
+import org.json.JSONObject
+import java.util.*
+import kotlin.collections.ArrayList
 
 class AllowedList {
     companion object {
@@ -21,11 +24,14 @@ class AllowedList {
 
         fun save(listAsString: String) {
             saveFile(listAsString)
-            parse(listAsString)
+            list = parse(listAsString)
         }
 
-        fun get() {
-            parse(loadFile())
+        fun get(): ArrayList<AllowedItem> {
+            if (list.size == 0) {
+                list = parse(loadFile())
+            }
+            return list
         }
 
         private fun loadFile(): String {
@@ -52,9 +58,10 @@ class AllowedList {
             editor.apply()
         }
 
-        private fun parse(strJson: String?): Array<String> {
+        private fun parse(strJson: String?): ArrayList<AllowedItem> {
 
             var jsonArray = JSONArray()
+            val list: ArrayList<AllowedItem> = ArrayList()
 
             if (strJson != null) {
                 try {
@@ -63,11 +70,36 @@ class AllowedList {
                 }
             }
 
-            val array =  Array(jsonArray.length()) {
-                jsonArray.getString(it)
+            Array(jsonArray.length()) {
+                val o = (jsonArray.get(it) as JSONObject)
+                val address: String = o.getString("address")
+                val label: String = o.getString("label")
+                val tsField: String = o.getString("tsField")
+                val serviceUUID: String = o.getString("serviceUUID") //UUID.fromString(o.getString("serviceUUID"))
+                val characteristicsUUID: String = o.getString("characteristicsUUID")
+                var type: String = o.getString("type")
+
+                if (!(address.isEmpty() ||
+                    tsField.isEmpty() ||
+                    serviceUUID.isEmpty() ||
+                    characteristicsUUID.isEmpty() )) {
+
+                        if (type.isEmpty()) {
+                            type = Constants.Types.integer
+                        }
+
+                        list.add(AllowedItem(
+                            address,
+                            label,
+                            tsField,
+                            UUID.fromString(serviceUUID),
+                            UUID.fromString(characteristicsUUID),
+                            type
+                        ))
+                }
             }
 
-            return array
+            return list
         }
     }
 }
