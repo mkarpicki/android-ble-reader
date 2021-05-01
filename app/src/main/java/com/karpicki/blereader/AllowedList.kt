@@ -58,6 +58,13 @@ class AllowedList {
             editor.apply()
         }
 
+        private fun hasRequiredInfo(o: JSONObject): Boolean {
+            return (o.has("address") &&
+                    o.has("tsField") &&
+                    o.has("serviceUUID") &&
+                    o.has("characteristicsUUID"))
+        }
+
         private fun parseAndFilter(strJson: String?): ArrayList<AllowedItem> {
 
             var jsonArray = JSONArray()
@@ -72,31 +79,22 @@ class AllowedList {
 
             Array(jsonArray.length()) {
                 val o = (jsonArray.get(it) as JSONObject)
-                val address: String = o.getString("address")
-                val label: String = o.getString("label")
-                val tsField: String = o.getString("tsField")
-                val serviceUUID: String = o.getString("serviceUUID")
-                val characteristicsUUID: String = o.getString("characteristicsUUID")
-                var type: String = o.getString("type")
 
-                if (address.isNotEmpty() &&
-                    tsField.isNotEmpty() &&
-                    serviceUUID.isNotEmpty() &&
-                    characteristicsUUID.isNotEmpty() ) {
+                if (hasRequiredInfo(o)) {
 
-                        if (type.isEmpty()) {
-                            type = Constants.Types.integer
-                        }
+                    val type: String = if (o.has("type")) o.getString("type") else Constants.Types.integer
+                    val label: String = if (o.has("label")) o.getString("label") else ""
 
-                        list.add(AllowedItem(
-                            address,
-                            label,
-                            tsField,
-                            UUID.fromString(serviceUUID),
-                            UUID.fromString(characteristicsUUID),
-                            type
-                        ))
+                    list.add(AllowedItem(
+                        o.getString("address"),
+                        label,
+                        o.getString("tsField"),
+                        UUID.fromString(o.getString("serviceUUID")),
+                        UUID.fromString(o.getString("characteristicsUUID")),
+                        type
+                    ))
                 }
+
             }
 
             return list
