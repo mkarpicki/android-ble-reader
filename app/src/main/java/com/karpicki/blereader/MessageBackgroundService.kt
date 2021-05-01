@@ -20,15 +20,6 @@ class MessageBackgroundService() : Service() {
     private val nextRunInMilliseconds : Long = 20 * Constants.second.toLong()
 
     private fun processMessage() {
-//        val messageList = MessageList.get()
-//
-//        Log.i("THS:MessageClass.size", MessageList.get().size.toString())
-//
-//        if (messageList.size == 0) {
-//            return
-//        }
-//
-//        val message = messageList.removeAt(0)
 
         Log.i("THS:MessageQueue.size", MessageQueue.size().toString())
 

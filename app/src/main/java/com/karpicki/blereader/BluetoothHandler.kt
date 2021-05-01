@@ -42,9 +42,6 @@ class BluetoothHandler(
 
     private fun broadcast(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
 
-//        MessageList.get().add(Message(gatt, characteristic))
-//        Log.i("BT:MessageClass.size", MessageList.get().size.toString())
-
         MessageQueue.insert(Message(gatt, characteristic))
         Log.i("BT:MessageQueue.size", MessageQueue.size().toString())
     }
