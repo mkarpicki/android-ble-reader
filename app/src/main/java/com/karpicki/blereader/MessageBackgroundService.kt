@@ -51,8 +51,9 @@ class MessageBackgroundService() : Service() {
                 readStringValue(message.characteristic)
             }
         }
-
-        ThingSpeakClient.send(value)
+        Log.i("send:dev", message.gatt.device.toString())
+        Log.i("send:val", value)
+        ThingSpeakClient.send(value, bleItemFromDictionary.tsField)
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {

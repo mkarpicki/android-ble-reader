@@ -11,13 +11,13 @@ import okhttp3.Response
 class ThingSpeakClient {
 
     companion object {
-        suspend fun send(value: String) : Int =
+        suspend fun send(value: String, field: String?) : Int =
 
             withContext(Dispatchers.IO) {
                 var responseCode: Int
 
                 val apiKey = BuildConfig.THING_SPEAK_API_KEY
-                val field = "field1"
+                val field = field ?: "field1"
 
                 if (apiKey == "") {
                     // @readme remember to set thing-speak.api-key in local.properties and
