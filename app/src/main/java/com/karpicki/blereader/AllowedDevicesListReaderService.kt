@@ -15,7 +15,7 @@ import okhttp3.Response
 import java.util.*
 import kotlin.concurrent.schedule
 
-class DeviceAllowedListReaderService: Service() {
+class AllowedDevicesListReaderService: Service() {
 
     private val nextRunInMilliseconds : Long = Constants.hour.toLong()
 

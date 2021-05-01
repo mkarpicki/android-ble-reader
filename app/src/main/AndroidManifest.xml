@@ -30,7 +30,7 @@
         </activity>
 
         <service
-            android:name=".DeviceAllowedListReaderService"
+            android:name=".AllowedDevicesListReaderService"
             android:enabled="true"
             android:exported="true" />
 

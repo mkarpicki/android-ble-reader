@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val devicesAllowedListIntent = Intent(applicationContext, DeviceAllowedListReaderService::class.java)
+        val devicesAllowedListIntent = Intent(applicationContext, AllowedDevicesListReaderService::class.java)
         val bleServiceIntent = Intent(applicationContext, BLEBackgroundService::class.java)
         val thingSpeakIntent = Intent(applicationContext, MessageBackgroundService::class.java)
 
