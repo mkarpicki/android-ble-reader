@@ -24,12 +24,12 @@ class AllowedList {
 
         fun save(listAsString: String) {
             saveFile(listAsString)
-            list = parse(listAsString)
+            list = parseAndFilter(listAsString)
         }
 
         fun get(): ArrayList<AllowedItem> {
             if (list.size == 0) {
-                list = parse(loadFile())
+                list = parseAndFilter(loadFile())
             }
             return list
         }
@@ -58,7 +58,7 @@ class AllowedList {
             editor.apply()
         }
 
-        private fun parse(strJson: String?): ArrayList<AllowedItem> {
+        private fun parseAndFilter(strJson: String?): ArrayList<AllowedItem> {
 
             var jsonArray = JSONArray()
             val list: ArrayList<AllowedItem> = ArrayList()
@@ -75,14 +75,14 @@ class AllowedList {
                 val address: String = o.getString("address")
                 val label: String = o.getString("label")
                 val tsField: String = o.getString("tsField")
-                val serviceUUID: String = o.getString("serviceUUID") //UUID.fromString(o.getString("serviceUUID"))
+                val serviceUUID: String = o.getString("serviceUUID")
                 val characteristicsUUID: String = o.getString("characteristicsUUID")
                 var type: String = o.getString("type")
 
-                if (!(address.isEmpty() ||
-                    tsField.isEmpty() ||
-                    serviceUUID.isEmpty() ||
-                    characteristicsUUID.isEmpty() )) {
+                if (address.isNotEmpty() &&
+                    tsField.isNotEmpty() &&
+                    serviceUUID.isNotEmpty() &&
+                    characteristicsUUID.isNotEmpty() ) {
 
                         if (type.isEmpty()) {
                             type = Constants.Types.integer
