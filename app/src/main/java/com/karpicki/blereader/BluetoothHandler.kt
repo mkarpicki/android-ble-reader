@@ -46,8 +46,6 @@ class BluetoothHandler(
         Log.i("BT:MessageQueue.size", MessageQueue.size().toString())
     }
 
-
-
     private fun read(gatt: BluetoothGatt) {
         val service : BluetoothGattService = gatt.services.find { service: BluetoothGattService ->
             service.uuid.equals(SERVICE_UUID)

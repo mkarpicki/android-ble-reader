@@ -10,8 +10,9 @@ class Constants {
     class Types {
         companion object {
             const val integer = "Integer"
-            const val long = "Long"
+            const val float = "Float"
             const val string = "String"
+            const val hex = "Hex"
         }
     }
 }

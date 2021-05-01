@@ -8,10 +8,6 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -30,11 +26,33 @@ class MessageBackgroundService() : Service() {
             val scope = CoroutineScope(Dispatchers.IO)
             // @todo : may add results inside to broadcast to UI
             scope.launch {
-                val value: String = readIntValue(message.characteristic).toString()
-                ThingSpeakClient.send(value)
+                val bleItemFromDictionary = AllowedList.findByAddress(message.gatt.device.address)
+
+                if (bleItemFromDictionary != null) {
+                    sendToThingSpeak(bleItemFromDictionary, message)
+                }
             }
         }
 
+    }
+
+    private suspend fun sendToThingSpeak(bleItemFromDictionary: AllowedItem, message: Message) {
+        val value: String = when (bleItemFromDictionary.type) {
+            Constants.Types.integer -> {
+                readIntValue(message.characteristic).toString()
+            }
+            Constants.Types.float -> {
+                readFloatValue(message.characteristic).toString()
+            }
+            Constants.Types.hex -> {
+                readHexStringValue(message.characteristic)
+            }
+            else -> {
+                readStringValue(message.characteristic)
+            }
+        }
+
+        ThingSpeakClient.send(value)
     }
 
     private fun readHexStringValue(characteristic: BluetoothGattCharacteristic): String {
@@ -48,8 +66,25 @@ class MessageBackgroundService() : Service() {
     }
 
     private fun readIntValue(characteristic: BluetoothGattCharacteristic): Int {
+        val format = readFormat(characteristic)
+        return characteristic.getIntValue(format, 0)
+    }
+
+    private fun readFloatValue(characteristic: BluetoothGattCharacteristic): Float {
+        val format = readFormat(characteristic)
+        return characteristic.getFloatValue(format, 0)
+    }
+
+    private fun readStringValue(characteristic: BluetoothGattCharacteristic): String {
+        Log.w("value:hexString", readHexStringValue(characteristic))
+        Log.w("value:uint", readIntValue(characteristic).toString())
+        return readIntValue(characteristic).toString()
+    }
+
+    private fun readFormat(characteristic: BluetoothGattCharacteristic): Int {
         val flag = characteristic.properties
-        val format = when (flag and 0x01) {
+
+        return when (flag and 0x01) {
             0x01 -> {
                 BluetoothGattCharacteristic.FORMAT_UINT16
             }
@@ -57,13 +92,6 @@ class MessageBackgroundService() : Service() {
                 BluetoothGattCharacteristic.FORMAT_UINT8
             }
         }
-        return characteristic.getIntValue(format, 0)
-    }
-
-    private fun readStringValue(characteristic: BluetoothGattCharacteristic): String {
-        Log.w("value:hexString", readHexStringValue(characteristic))
-        Log.w("value:uint", readIntValue(characteristic).toString())
-        return readIntValue(characteristic).toString()
     }
 
     override fun onBind(p0: Intent?): IBinder? {

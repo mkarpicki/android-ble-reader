@@ -34,6 +34,12 @@ class AllowedList {
             return list
         }
 
+        fun findByAddress(address: String): AllowedItem? {
+            return list.find { allowedItem ->
+                allowedItem.address == address
+            }
+        }
+
         private fun loadFile(): String {
 
             var listStr = "[]"
@@ -82,7 +88,7 @@ class AllowedList {
 
                 if (hasRequiredInfo(o)) {
 
-                    val type: String = if (o.has("type")) o.getString("type") else Constants.Types.integer
+                    val type: String = if (o.has("type")) o.getString("type") else Constants.Types.string
                     val label: String = if (o.has("label")) o.getString("label") else ""
 
                     list.add(AllowedItem(
