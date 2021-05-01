@@ -7,8 +7,6 @@ import android.content.Context
 import android.os.Handler
 import android.util.Log
 import java.util.*
-import okhttp3.*
-import java.lang.Exception
 import kotlin.collections.ArrayList
 
 class BluetoothHandler(
@@ -24,7 +22,7 @@ class BluetoothHandler(
     private val handler = Handler()
 
     // Stops scanning after 10 seconds.
-    private val SCAN_PERIOD: Long = 10000
+    private val scanPeriod: Long = 10 * Constants.second.toLong()
 
     private var context: Context? = context
 
@@ -195,7 +193,7 @@ class BluetoothHandler(
             handler.postDelayed({
                 mScanning = false
                 bluetoothLeScanner.stopScan(leScanCallback)
-            }, SCAN_PERIOD)
+            }, scanPeriod)
             mScanning = true
             //bluetoothLeScanner.startScan(filterList, scanSettings, leScanCallback)
             bluetoothLeScanner.startScan(leScanCallback)
