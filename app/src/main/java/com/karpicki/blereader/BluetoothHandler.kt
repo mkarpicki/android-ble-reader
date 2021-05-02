@@ -13,8 +13,6 @@ class BluetoothHandler(
     context: Context,
     private var connectedDevices: ArrayList<BluetoothDevice>
 ) {
-    private val SERVICE_UUID = UUID.fromString("9d319c9c-3abb-4b58-b99d-23c9b1b69ebc")
-    private val CHARACTERISTICS_UUID = UUID.fromString("a869a793-4b6e-4334-b1e3-eb0b74526c14")
     private val CLIENT_CHARACTERISTIC_CONFIGURATION_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
     private val bluetoothLeScanner = BluetoothAdapter.getDefaultAdapter().bluetoothLeScanner
@@ -26,16 +24,11 @@ class BluetoothHandler(
 
     private var context: Context? = context
 
-    // @todo maybe temporary filter by name pattern
-    // ideally (as I think possible) scan could use filter of ServiceIDs defined
-    private fun hasKnownName(scanResult: ScanResult): Boolean {
+    private fun hasKnownAddress(scanResult: ScanResult): Boolean {
 
-        val name : String? = scanResult.device.name
+        val address: String = scanResult.device.address
 
-        if (name.isNullOrEmpty()) {
-            return false
-        }
-        return name.contains("ESP32_")
+        return (AllowedList.filterByAddress(address).size > 0)
     }
 
     private fun broadcast(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
@@ -46,25 +39,34 @@ class BluetoothHandler(
     }
 
     private fun read(gatt: BluetoothGatt) {
-        val service : BluetoothGattService = gatt.services.find { service: BluetoothGattService ->
-            service.uuid.equals(SERVICE_UUID)
-        } ?: return
 
-        Log.w("gatt.service:", service.uuid.toString())
+        val address: String = gatt.device.address
 
-        val characteristic: BluetoothGattCharacteristic = service.getCharacteristic(CHARACTERISTICS_UUID)
-            ?: return
+        gatt.services.forEach { service ->
 
-        Log.w("gatt.characteristics:", characteristic.uuid.toString())
+            val devicesInDictionary = AllowedList.filterByAddressAndServiceUUID(address, service.uuid)
 
-        // @todo
-        // this caused some problems so if ew wanna bring back
-        // maybe notification listener must have some delay ?
-        
-        //gatt.readCharacteristic(characteristic)
+            if (devicesInDictionary.size > 0) {
+                Log.w("gatt.service:", service.uuid.toString())
 
-        watchForChanges(gatt, characteristic)
-        connectedDevices = ConnectedDevicesUtil.remember(connectedDevices, gatt.device)
+                devicesInDictionary.forEach { deviceInDictionary ->
+                    val characteristic: BluetoothGattCharacteristic = service.getCharacteristic(
+                      deviceInDictionary.characteristicsUUID
+                    ) ?: return
+
+                    Log.w("gatt.characteristics:", characteristic.uuid.toString())
+
+                    // @todo
+                    // this caused some problems so if ew wanna bring back
+                    // maybe notification listener must have some delay ?
+
+                    //gatt.readCharacteristic(characteristic)
+
+                    watchForChanges(gatt, characteristic)
+                    connectedDevices = ConnectedDevicesUtil.remember(connectedDevices, gatt.device)
+                }
+            }
+        }
     }
 
     private fun watchForChanges(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
@@ -140,15 +142,14 @@ class BluetoothHandler(
 
     private fun handleFoundResult(scanResult: ScanResult) {
 
-        if (hasKnownName(scanResult)) {
-            Log.i("RESULT", scanResult.toString())
+        if (hasKnownAddress(scanResult)) {
 
+            Log.i("RESULT", scanResult.toString())
             if (!ConnectedDevicesUtil.isConnected(connectedDevices, scanResult.device)) {
                 connect(scanResult.device)
             } else {
                 Log.i("ALREADY CONNECTED", scanResult.device.address)
             }
-
         }
     }
 

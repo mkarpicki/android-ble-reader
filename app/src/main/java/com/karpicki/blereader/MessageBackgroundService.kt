@@ -26,10 +26,11 @@ class MessageBackgroundService() : Service() {
             val scope = CoroutineScope(Dispatchers.IO)
             // @todo : may add results inside to broadcast to UI
             scope.launch {
-                val bleItemFromDictionary = AllowedList.findByAddress(message.gatt.device.address)
+                val bleItemFromDictionary = AllowedList.filterByAddressAndCharacteristicsUUID(
+                    message.gatt.device.address, message.characteristic.uuid)
 
-                if (bleItemFromDictionary != null) {
-                    sendToThingSpeak(bleItemFromDictionary, message)
+                if (bleItemFromDictionary.size > 0) {
+                    sendToThingSpeak(bleItemFromDictionary.first(), message)
                 }
             }
         }

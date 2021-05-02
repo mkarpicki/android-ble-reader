@@ -34,10 +34,36 @@ class AllowedList {
             return list
         }
 
-        fun findByAddress(address: String): AllowedItem? {
-            return list.find { allowedItem ->
+        fun filterByAddressAndCharacteristicsUUID(
+            address: String,
+            characteristicsUUID: UUID
+        ): ArrayList<AllowedItem> {
+
+            val filteredList = filterByAddress(address)
+
+            return (ArrayList( filteredList.filter { allowedItem ->
+                allowedItem.characteristicsUUID == characteristicsUUID
+            }))
+        }
+
+        fun filterByAddressAndServiceUUID(
+            address: String,
+            serviceUUID: UUID
+        ): ArrayList<AllowedItem> {
+
+            val filteredList = filterByAddress(address)
+
+            return (ArrayList( filteredList.filter { allowedItem ->
+                allowedItem.serviceUUID == serviceUUID
+            }))
+        }
+
+
+        fun filterByAddress(address: String): ArrayList<AllowedItem> {
+
+            return (ArrayList( list.filter { allowedItem ->
                 allowedItem.address == address
-            }
+            }))
         }
 
         private fun loadFile(): String {
